@@ -3,60 +3,169 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Qwen Chat</title>
+  <title>The Heavens Assunder</title>
+
   <style>
+    /* ===== RESET & BODY ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: system-ui, sans-serif;
-      background: #0d1117;
-      color: #fff;
+      font-family: "Poppins", system-ui, sans-serif;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
+      background: radial-gradient(circle at center, rgba(0,0,0,0.6), #000),
+                  url("https://cdn.pixabay.com/photo/2023/07/11/05/37/turtle-8119940_1280.jpg") center/cover no-repeat;
+      background-attachment: fixed;
+      overflow: hidden;
+      color: #fff;
     }
+
+    /* ===== OVERLAY LIGHTNING EFFECT ===== */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("https://i.gifer.com/origin/4a/4a4d4cc8a6c92b0e249ac76b0cb606e5.gif") center/cover no-repeat;
+      mix-blend-mode: screen;
+      opacity: 0.45;
+      z-index: 0;
+    }
+
+    /* ===== TITLE ===== */
+    header {
+      z-index: 2;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 2em;
+      background: linear-gradient(45deg, gold, #ffcc33, #ffee88);
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 10px rgba(255,215,0,0.4);
+      letter-spacing: 2px;
+      animation: pulse 3s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { text-shadow: 0 0 5px gold; }
+      to { text-shadow: 0 0 25px gold; }
+    }
+
+    /* ===== CHAT BOX ===== */
     #chatbox {
       width: 90%;
-      max-width: 500px;
+      max-width: 520px;
       height: 60vh;
       overflow-y: auto;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 10px;
-      background: #161b22;
-      margin-bottom: 10px;
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 12px;
+      padding: 15px;
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+      margin-bottom: 15px;
+      z-index: 2;
+      scroll-behavior: smooth;
     }
-    .user { color: #58a6ff; }
-    .assistant { color: #9fe6a0; }
+
+    /* ===== CHAT MESSAGES ===== */
+    .user, .assistant {
+      padding: 8px 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+      word-wrap: break-word;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .user {
+      background: rgba(88, 166, 255, 0.1);
+      color: #58a6ff;
+      text-align: right;
+    }
+
+    .assistant {
+      background: rgba(159, 230, 160, 0.1);
+      color: #9fe6a0;
+      text-align: left;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== INPUT AREA ===== */
     #inputArea {
       display: flex;
       width: 90%;
-      max-width: 500px;
+      max-width: 520px;
+      z-index: 2;
     }
+
     input {
       flex: 1;
-      padding: 10px;
+      padding: 12px;
       border: none;
-      border-radius: 8px 0 0 8px;
+      border-radius: 10px 0 0 10px;
       outline: none;
-    }
-    button {
-      padding: 10px 15px;
-      background: #238636;
+      background: rgba(255,255,255,0.1);
       color: white;
+      font-size: 1em;
+    }
+
+    input::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+
+    button {
+      padding: 12px 20px;
+      background: linear-gradient(45deg, #d4af37, #ffcf40);
       border: none;
-      border-radius: 0 8px 8px 0;
+      border-radius: 0 10px 10px 0;
+      color: black;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #ffdf70, #ffe97d);
+      box-shadow: 0 0 15px rgba(255,215,0,0.5);
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.6em;
+      }
+      #chatbox {
+        height: 55vh;
+      }
     }
   </style>
 </head>
+
 <body>
-  <h2>🧠 Mini Qwen Chat</h2>
+  <header>
+    <h1>⚡ The Heavens Assunder 🐢</h1>
+  </header>
+
   <div id="chatbox"></div>
+
   <div id="inputArea">
-    <input id="userInput" type="text" placeholder="Type your message..." />
-    <button id="sendBtn">Send</button>
+    <input id="userInput" type="text" placeholder="Speak your truth to the heavens..." />
+    <button id="sendBtn">Send ⚡</button>
   </div>
+
   <script src="chat.js"></script>
 </body>
 </html>
