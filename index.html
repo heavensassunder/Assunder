@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Qwen Chat</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0d1117;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #chatbox {
+      width: 90%;
+      max-width: 500px;
+      height: 60vh;
+      overflow-y: auto;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 10px;
+      background: #161b22;
+      margin-bottom: 10px;
+    }
+    .user { color: #58a6ff; }
+    .assistant { color: #9fe6a0; }
+    #inputArea {
+      display: flex;
+      width: 90%;
+      max-width: 500px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      outline: none;
+    }
+    button {
+      padding: 10px 15px;
+      background: #238636;
+      color: white;
+      border: none;
+      border-radius: 0 8px 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>🧠 Mini Qwen Chat</h2>
+  <div id="chatbox"></div>
+  <div id="inputArea">
+    <input id="userInput" type="text" placeholder="Type your message..." />
+    <button id="sendBtn">Send</button>
+  </div>
+  <script src="chat.js"></script>
+</body>
+</html>
