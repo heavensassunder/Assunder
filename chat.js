@@ -1,44 +1,24 @@
 const chatbox = document.getElementById("chatbox");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
+const recordBtn = document.getElementById("recordBtn");
+const voiceReply = document.getElementById("voiceReply");
 
-// Load chat history
 const history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+const API_BASE = "https://assunder.onrender.com"; // replace if deployed elsewhere
 
-// Render chat history
 function renderChat() {
   chatbox.innerHTML = "";
   history.forEach(msg => {
     const div = document.createElement("div");
     div.classList.add(msg.role);
-    div.textContent = `${msg.role === "user" ? "🧑" : "⚡"} ${msg.content}`;
+    div.textContent = `${msg.role === "user" ? "🧑" : "🤖"} ${msg.content}`;
     chatbox.appendChild(div);
   });
   chatbox.scrollTop = chatbox.scrollHeight;
 }
 renderChat();
 
-// Typewriter effect for assistant replies
-function typeWriterEffect(message, callback) {
-  const div = document.createElement("div");
-  div.classList.add("assistant");
-  chatbox.appendChild(div);
-
-  let i = 0;
-  function type() {
-    if (i < message.length) {
-      div.textContent = "⚡ " + message.slice(0, i + 1);
-      i++;
-      chatbox.scrollTop = chatbox.scrollHeight;
-      setTimeout(type, 30); // typing speed
-    } else if (callback) {
-      callback();
-    }
-  }
-  type();
-}
-
-// Handle message send
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
@@ -47,15 +27,8 @@ async function sendMessage() {
   history.push({ role: "user", content: text });
   renderChat();
 
-  // Placeholder while waiting
-  const thinkingDiv = document.createElement("div");
-  thinkingDiv.classList.add("assistant");
-  thinkingDiv.textContent = "⚡ The heavens are thinking...";
-  chatbox.appendChild(thinkingDiv);
-  chatbox.scrollTop = chatbox.scrollHeight;
-
   try {
-    const res = await fetch("https://assunder.onrender.com/chat", {
+    const res = await fetch(`${API_BASE}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -65,23 +38,62 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || "⚠️ The heavens were silent.";
-    chatbox.removeChild(thinkingDiv);
-
-    // Animate the assistant's reply
-    typeWriterEffect(reply, () => {
-      history.push({ role: "assistant", content: reply });
-      localStorage.setItem("chatHistory", JSON.stringify(history));
-    });
-
+    const reply = data.choices?.[0]?.message?.content || "⚠️ No response";
+    history.push({ role: "assistant", content: reply });
+    localStorage.setItem("chatHistory", JSON.stringify(history));
+    renderChat();
   } catch (err) {
-    chatbox.removeChild(thinkingDiv);
-    const errDiv = document.createElement("div");
-    errDiv.classList.add("assistant");
-    errDiv.textContent = "❌ A thunderstorm blocked the signal: " + err.message;
-    chatbox.appendChild(errDiv);
+    history.push({ role: "assistant", content: "❌ Network error: " + err.message });
+    renderChat();
   }
 }
 
 sendBtn.onclick = sendMessage;
 input.addEventListener("keypress", e => e.key === "Enter" && sendMessage());
+
+// === Voice recording ===
+let mediaRecorder, audioChunks = [];
+
+recordBtn.onmousedown = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    recordBtn.classList.add("recording");
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.start();
+  } catch (err) {
+    alert("🎙️ Microphone access denied: " + err.message);
+  }
+};
+
+recordBtn.onmouseup = async () => {
+  if (!mediaRecorder) return;
+  recordBtn.classList.remove("recording");
+  mediaRecorder.stop();
+
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(audioChunks, { type: "audio/webm" });
+    const formData = new FormData();
+    formData.append("audio", blob);
+
+    try {
+      const res = await fetch(`${API_BASE}/voice`, { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (data.text) {
+        history.push({ role: "assistant", content: data.text });
+        localStorage.setItem("chatHistory", JSON.stringify(history));
+        renderChat();
+      }
+
+      if (data.replyAudio) {
+        voiceReply.src = data.replyAudio;
+        voiceReply.hidden = false;
+        voiceReply.play();
+      }
+    } catch (err) {
+      alert("❌ Voice send failed: " + err.message);
+    }
+  };
+};
